@@ -158,7 +158,7 @@ void collectSurvey(const vector<Participant>& participants) {
     cin >> choice;
 
     // Find chosen participant
-    const Participant* selectedParticipant = nullptr; // yuck pointers Java on top!!! kidding :3
+    const Participant* selectedParticipant = nullptr; // Yuck, pointers again. Java on top!!! kidding :3
     for (const auto& p : participants) {
         if (p.id == choice) {
             selectedParticipant = &p;
@@ -202,7 +202,7 @@ int main() {
     vector<Participant> participants = loadParticipants();
     int choice;
 
-    cout << "Welcome to the Westlake Research Hospital StudyMor Study!" << endl << endl;
+    cout << "Welcome to the West Lake Research Hospital StudyMor Study!" << endl << endl;
 
     do {
         cout << "1. Add a New Participant" << endl;

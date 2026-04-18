@@ -1,7 +1,8 @@
-/* Program name: M1A1.cpp
-*  Author: Stella Song
-*  Date last updated: 2026/03/20
-* Purpose: File I/O Assignment
+/*
+ * Program name: M1AP1.cpp
+ * Author: Stella Song
+ * Date last updated: 2026/03/20
+ * Purpose: File I/O Assignment
 */
 
 #include <iostream>
@@ -38,6 +39,7 @@ string getCurrentDate() {
     char formatDate[80];
     const time_t currentDate = time(nullptr);
     strftime(formatDate, 80, "%F", localtime(&currentDate));
+
     return {formatDate};
 }
 

@@ -161,8 +161,7 @@ void viewRental(sqlite3* mydb) {
             sqlite3_reset(stmt);
             sqlite3_bind_int(stmt, 1, customerId);
             for (int i = 0; i < startNum; i++) sqlite3_step(stmt);
-        }
-        else {
+        } else {
             // Find the ID of the rental selected from the numbered menu list
             sqlite3_reset(stmt);
             sqlite3_bind_int(stmt, 1, customerId);
@@ -182,7 +181,7 @@ void viewRental(sqlite3* mydb) {
                            "JOIN film f ON i.film_id = f.film_id "
                            "WHERE r.rental_id = ?;";
 
-    sqlite3_prepare_v2(mydb, finalSql, -1, &stmt, NULL);
+    sqlite3_prepare_v2(mydb, finalSql, -1, &stmt, nullptr);
     sqlite3_bind_int(stmt, 1, rentalId);
 
     if (sqlite3_step(stmt) == SQLITE_ROW) {

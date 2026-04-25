@@ -1,0 +1,101 @@
+---
+config:
+  layout: dagre
+---
+erDiagram
+	direction LR
+	CUSTOMER {
+		int CUS_ID PK ""  
+		varchar FNAME  ""  
+		varchar LNAME  ""  
+		varchar EMAIL  ""  
+		varchar PHONE_NUM  ""  
+		varchar STREET  ""  
+		varchar CITY  ""  
+		varchar ZIP_CODE  ""  
+	}
+
+	ORDER {
+		int ORD_ID PK ""  
+		int CUS_ID FK ""  
+		enum TYPE  ""  
+		int ORD_SPLIT  ""  
+		timestamp ORD_TIME  ""  
+		int TABLE_NUM  ""  
+	}
+
+	ORDER_LINE_ITEM {
+		int ORD_ID PK,FK ""  
+		int LINE_NUM PK ""  
+		int DISH_ID FK ""  
+		int SPLIT_ID FK ""  
+		int QUANTITY  ""  
+		decimal PRICE  ""  
+		text NOTES  ""  
+	}
+
+	INVOICE {
+		int ORD_ID PK,FK ""  
+		int SPLIT_ID PK ""  
+		enum PAY_TYPE  ""  
+		varchar PAY_INFO  ""  
+		boolean PAID  ""  
+		timestamp CREATE_TIME  ""  
+		timestamp PAID_TIME  ""  
+	}
+
+	ORDER_LINE_OPTION {
+		int ORD_ID PK,FK ""  
+		int LINE_NUM PK,FK ""  
+		int OPT_ID PK,FK ""  
+		int QUANTITY  ""  
+		decimal PRICE  ""  
+		text NOTES  ""  
+	}
+
+	DISH {
+		int DISH_ID PK ""  
+		varchar ZH_NAME  ""  
+		varchar EN_NAME  ""  
+		decimal PRICE  ""  
+		boolean AVAILABLE  ""  
+		varchar CATEGORY  ""  
+		text ZH_DESC  ""  
+		text EN_DESC  ""  
+	}
+
+	DISH_TO_OPTION {
+		int DISH_ID PK,FK ""  
+		int OPT_ID PK,FK ""  
+	}
+
+	DISH_OPTION {
+		int OPT_ID PK ""  
+		varchar ZH_NAME  ""  
+		varchar EN_NAME  ""  
+		decimal PRICE  ""  
+		boolean AVAILABLE  ""  
+	}
+
+	DISH_TO_RESTRICTION {
+		int DISH_ID PK,FK ""  
+		int RES_ID PK,FK ""  
+	}
+
+	DISH_RESTRICTION {
+		int RES_ID PK ""  
+		varchar ZH_NAME  ""  
+		varchar EN_NAME  ""  
+	}
+
+	CUSTOMER||--o{ORDER:"places"
+	ORDER||--|{ORDER_LINE_ITEM:"contains"
+	ORDER||--|{INVOICE:"generates"
+	INVOICE||--o{ORDER_LINE_ITEM:"assigned to"
+	ORDER_LINE_ITEM||--o{ORDER_LINE_OPTION:"has"
+	DISH||--o{DISH_TO_OPTION:"offered with"
+	DISH_OPTION||--o{DISH_TO_OPTION:"assigned to"
+	DISH||--o{DISH_TO_RESTRICTION:"classified as"
+	DISH_RESTRICTION||--o{DISH_TO_RESTRICTION:"applies to"
+	DISH||--o{ORDER_LINE_ITEM:"ordered as"
+	DISH_OPTION||--o{ORDER_LINE_OPTION:"selected as"

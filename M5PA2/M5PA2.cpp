@@ -15,8 +15,8 @@ using namespace std;
 // Function Prototypes
 void viewRental(sqlite3*);
 void viewCustomer(sqlite3*);
-int selectCustomer(sqlite3*, string prompt);
-int getValidatedInt(string prompt, int min, int max, bool allowQuit = false);
+int selectCustomer(sqlite3*, const string& prompt);
+int getValidatedInt(const string& prompt, int min, int max, bool allowQuit = false);
 
 int main() {
     sqlite3* mydb;
@@ -45,7 +45,7 @@ int main() {
     return 0;
 }
 
-int getValidatedInt(string prompt, int min, int max, bool allowQuit) {
+int getValidatedInt(const string& prompt, const int min, const int max, const bool allowQuit) {
     int val;
     if (!prompt.empty()) cout << prompt;
     while (!(cin >> val) || (val < min && !(allowQuit && val == -1)) || val > max) {
@@ -53,26 +53,27 @@ int getValidatedInt(string prompt, int min, int max, bool allowQuit) {
             cin.clear();
             cin.ignore(1000, '\n');
         }
+
         cout << "Invalid entry. Please enter a valid value: ";
     }
+
     return val;
 }
 
-int selectCustomer(sqlite3* mydb, string prompt) {
+int selectCustomer(sqlite3* mydb, const string& prompt) {
     sqlite3_stmt* stmt;
     int totalRows = 0;
 
-    sqlite3_prepare_v2(mydb, "SELECT count(*) FROM customer;", -1, &stmt, NULL);
+    sqlite3_prepare_v2(mydb, "SELECT count(*) FROM customer;", -1, &stmt, nullptr);
     sqlite3_step(stmt);
     totalRows = sqlite3_column_int(stmt, 0);
     sqlite3_finalize(stmt);
 
     cout << "\nThere are " << totalRows << " rows in the result.  How many do you want to see per page?" << endl;
-    int rowsPerPage = getValidatedInt("", 1, totalRows);
+    const int rowsPerPage = getValidatedInt("", 1, totalRows);
 
-    // SQL updated to select first_name then last_name for correct output order
-    const char* sql = "SELECT customer_id, first_name, last_name FROM customer ORDER BY customer_id;";
-    sqlite3_prepare_v2(mydb, sql, -1, &stmt, NULL);
+    const auto sql = "SELECT customer_id, first_name, last_name FROM customer ORDER BY customer_id;";
+    sqlite3_prepare_v2(mydb, sql, -1, &stmt, nullptr);
 
     int startNum = 0;
     while (true) {
@@ -86,17 +87,17 @@ int selectCustomer(sqlite3* mydb, string prompt) {
                  << sqlite3_column_text(stmt, 1) << " " << sqlite3_column_text(stmt, 2) << endl;
         }
 
-        int choice = getValidatedInt("", -1, totalRows);
-
-        if (choice == 0) {
+        if (const int choice = getValidatedInt("", -1, totalRows); choice == 0) {
             startNum = (startNum + rowsPerPage >= totalRows) ? 0 : startNum + rowsPerPage;
             sqlite3_reset(stmt);
             for (int i = 0; i < startNum; i++) sqlite3_step(stmt);
-        } else if (choice == -1 && startNum > 0) {
+        }
+        else if (choice == -1 && startNum > 0) {
             startNum -= rowsPerPage;
             sqlite3_reset(stmt);
             for (int i = 0; i < startNum; i++) sqlite3_step(stmt);
-        } else if (choice > 0) {
+        }
+        else if (choice > 0) {
             sqlite3_finalize(stmt);
             return choice;
         }
@@ -104,16 +105,16 @@ int selectCustomer(sqlite3* mydb, string prompt) {
 }
 
 void viewCustomer(sqlite3* mydb) {
-    int customerId = selectCustomer(mydb, "you want to see");
+    const int customerId = selectCustomer(mydb, "you want to see");
 
     sqlite3_stmt* stmt;
-    const char* sql = "SELECT c.first_name, c.last_name, a.address, ct.city, a.postal_code, a.phone, c.email, c.active, c.last_update "
+    const auto* sql = "SELECT c.first_name, c.last_name, a.address, ct.city, a.postal_code, a.phone, c.email, c.active, c.last_update "
                       "FROM customer c "
                       "JOIN address a ON c.address_id = a.address_id "
                       "JOIN city ct ON a.city_id = ct.city_id "
                       "WHERE c.customer_id = ?;";
 
-    sqlite3_prepare_v2(mydb, sql, -1, &stmt, NULL);
+    sqlite3_prepare_v2(mydb, sql, -1, &stmt, nullptr);
     sqlite3_bind_int(stmt, 1, customerId);
 
     if (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -125,25 +126,25 @@ void viewCustomer(sqlite3* mydb) {
         cout << "Email: " << sqlite3_column_text(stmt, 6) << endl;
         cout << "Last Update: " << sqlite3_column_text(stmt, 8) << endl;
     }
+
     sqlite3_finalize(stmt);
 }
 
 void viewRental(sqlite3* mydb) {
-    int customerId = selectCustomer(mydb, "you want to see rentals for");
+    const int customerId = selectCustomer(mydb, "you want to see rentals for");
 
     sqlite3_stmt* stmt;
-    sqlite3_prepare_v2(mydb, "SELECT count(*) FROM rental WHERE customer_id = ?;", -1, &stmt, NULL);
+    sqlite3_prepare_v2(mydb, "SELECT count(*) FROM rental WHERE customer_id = ?;", -1, &stmt, nullptr);
     sqlite3_bind_int(stmt, 1, customerId);
     sqlite3_step(stmt);
-    int totalRentals = sqlite3_column_int(stmt, 0);
+    const int totalRentals = sqlite3_column_int(stmt, 0);
     sqlite3_finalize(stmt);
 
     cout << "\nThere are " << totalRentals << " rows in the result.  How many do you want to see per page?" << endl;
-    int rowsPerPage = getValidatedInt("", 1, totalRentals);
+    const int rowsPerPage = getValidatedInt("", 1, totalRentals);
 
-    // SQL updated to ASC order to match the oldest-to-newest sorting in the sample output
-    const char* listSql = "SELECT rental_id, rental_date FROM rental WHERE customer_id = ? ORDER BY rental_date ASC;";
-    sqlite3_prepare_v2(mydb, listSql, -1, &stmt, NULL);
+    const auto* listSql = "SELECT rental_id, rental_date FROM rental WHERE customer_id = ? ORDER BY rental_date ASC;";
+    sqlite3_prepare_v2(mydb, listSql, -1, &stmt, nullptr);
     sqlite3_bind_int(stmt, 1, customerId);
 
     int startNum = 0;
@@ -155,13 +156,13 @@ void viewRental(sqlite3* mydb) {
             cout << i + startNum << ". " << sqlite3_column_int(stmt, 0) << " - " << sqlite3_column_text(stmt, 1) << endl;
         }
 
-        int choice = getValidatedInt("", 0, 1000000);
-        if (choice == 0) {
+        if (const int choice = getValidatedInt("", 0, 1000000); choice == 0) {
             startNum = (startNum + rowsPerPage >= totalRentals) ? 0 : startNum + rowsPerPage;
             sqlite3_reset(stmt);
             sqlite3_bind_int(stmt, 1, customerId);
             for (int i = 0; i < startNum; i++) sqlite3_step(stmt);
-        } else {
+        }
+        else {
             // Find the ID of the rental selected from the numbered menu list
             sqlite3_reset(stmt);
             sqlite3_bind_int(stmt, 1, customerId);
@@ -169,9 +170,10 @@ void viewRental(sqlite3* mydb) {
             rentalId = sqlite3_column_int(stmt, 0);
         }
     }
+
     sqlite3_finalize(stmt);
 
-    const char* finalSql = "SELECT r.rental_date, s.first_name || ' ' || s.last_name, c.first_name || ' ' || c.last_name, "
+    const auto* finalSql = "SELECT r.rental_date, s.first_name || ' ' || s.last_name, c.first_name || ' ' || c.last_name, "
                            "f.title, f.description, f.rental_rate, r.return_date "
                            "FROM rental r "
                            "JOIN staff s ON r.staff_id = s.staff_id "
@@ -190,7 +192,8 @@ void viewRental(sqlite3* mydb) {
         cout << "Film Information:" << endl;
         cout << sqlite3_column_text(stmt, 3) << " - " << sqlite3_column_text(stmt, 4) << " $" << sqlite3_column_text(stmt, 5) << endl;
         const unsigned char* ret = sqlite3_column_text(stmt, 6);
-        cout << "Return Date: " << (ret ? (const char*)ret : "Not Returned") << endl;
+        cout << "Return Date: " << (ret ? reinterpret_cast<const char *>(ret) : "Not Returned") << endl;
     }
+
     sqlite3_finalize(stmt);
 }

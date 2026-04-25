@@ -1,5 +1,4 @@
 -- Combined Inserts for restaurantproject
--- Includes: Customers, Dishes, Options, Restrictions, Mappings, and Orders
 SET search_path TO restaurantproject;
 
 -------------------------------------------------------------------------------
@@ -77,93 +76,93 @@ SELECT d.dish_id, r.res_id FROM dish d, dish_restriction r
 WHERE d.en_name != 'Smashed Cucumber Salad' AND r.en_name = 'Nut free';
 
 -------------------------------------------------------------------------------
--- 6. ORDERS & INVOICES (REVISED TIMING)
+-- 6. ORDERS & INVOICES
 -------------------------------------------------------------------------------
 
--- 6.1 STELLA'S ORDER (Ordered at 12:30 PM, Paid 45 mins later)
+-- 6.1 STELLA'S ORDER
 INSERT INTO "order" (cus_id, type, ord_split, table_num, ord_time) 
 SELECT cus_id, 'DINE_IN', 1, 5, CURRENT_DATE + TIME '12:30:00' FROM customer WHERE email = 'icetechstudios123@gmail.com';
 
 INSERT INTO invoice (ord_id, split_id, pay_type, pay_info, paid, create_time, paid_time)
-VALUES (currval('order_ord_id_seq'), '1', 'GOOGLE_PAY', 'icetechstudios123@gmail.com', true, CURRENT_DATE + TIME '12:30:00', CURRENT_DATE + TIME '13:15:00');
+VALUES (lastval(), 1, 'GOOGLE_PAY', 'icetechstudios123@gmail.com', true, CURRENT_DATE + TIME '12:30:00', CURRENT_DATE + TIME '13:15:00');
 
 INSERT INTO order_line_item (ord_id, line_num, dish_id, split_id, quantity, price)
-SELECT currval('order_ord_id_seq'), 1, dish_id, '1', 1, price FROM dish WHERE en_name = 'Stir-fried Pork Kidneys';
+SELECT lastval(), 1, dish_id, 1, 1, price FROM dish WHERE en_name = 'Stir-fried Pork Kidneys';
 INSERT INTO order_line_option (ord_id, line_num, opt_id, quantity, price)
-SELECT currval('order_ord_id_seq'), 1, opt_id, 1, price FROM dish_option WHERE en_name = 'More meat / protein';
+SELECT lastval(), 1, opt_id, 1, price FROM dish_option WHERE en_name = 'More meat / protein';
 INSERT INTO order_line_option (ord_id, line_num, opt_id, quantity, price)
-SELECT currval('order_ord_id_seq'), 1, opt_id, 2, price FROM dish_option WHERE en_name = 'Add rice';
+SELECT lastval(), 1, opt_id, 2, price FROM dish_option WHERE en_name = 'Add rice';
 
 INSERT INTO order_line_item (ord_id, line_num, dish_id, split_id, quantity, price)
-SELECT currval('order_ord_id_seq'), 2, dish_id, '1', 1, price FROM dish WHERE en_name = 'Roasted Aorta Skewers';
+SELECT lastval(), 2, dish_id, 1, 1, price FROM dish WHERE en_name = 'Roasted Aorta Skewers';
 INSERT INTO order_line_item (ord_id, line_num, dish_id, split_id, quantity, price)
-SELECT currval('order_ord_id_seq'), 3, dish_id, '1', 1, price FROM dish WHERE en_name = 'Dry Pot Cauliflower';
+SELECT lastval(), 3, dish_id, 1, 1, price FROM dish WHERE en_name = 'Dry Pot Cauliflower';
 
--- 6.2 LYTHONIEL'S ORDER (Ordered at 6:00 PM, Paid 50 mins later)
+-- 6.2 LYTHONIEL'S ORDER
 INSERT INTO "order" (cus_id, type, ord_split, table_num, ord_time) 
 SELECT cus_id, 'DINE_IN', 1, 6, CURRENT_DATE + TIME '18:00:00' FROM customer WHERE fname = 'Lythoniel';
 
 INSERT INTO invoice (ord_id, split_id, pay_type, pay_info, paid, create_time, paid_time)
-VALUES (currval('order_ord_id_seq'), '1', 'CREDIT', 'VISA-4242-8888-JUNK', true, CURRENT_DATE + TIME '18:00:00', CURRENT_DATE + TIME '18:50:00');
+VALUES (lastval(), 1, 'CREDIT', 'VISA-4242-8888-JUNK', true, CURRENT_DATE + TIME '18:00:00', CURRENT_DATE + TIME '18:50:00');
 
 INSERT INTO order_line_item (ord_id, line_num, dish_id, split_id, quantity, price)
-SELECT currval('order_ord_id_seq'), 1, dish_id, '1', 1, price FROM dish WHERE en_name = 'Stir-fried Pork Kidneys';
+SELECT lastval(), 1, dish_id, 1, 1, price FROM dish WHERE en_name = 'Stir-fried Pork Kidneys';
 INSERT INTO order_line_option (ord_id, line_num, opt_id, quantity, price)
-SELECT currval('order_ord_id_seq'), 1, opt_id, 1, price FROM dish_option WHERE en_name = 'Add rice';
+SELECT lastval(), 1, opt_id, 1, price FROM dish_option WHERE en_name = 'Add rice';
 
 INSERT INTO order_line_item (ord_id, line_num, dish_id, split_id, quantity, price)
-SELECT currval('order_ord_id_seq'), 2, dish_id, '1', 1, price FROM dish WHERE en_name = 'Fish w/ Pickled Mustard Greens';
+SELECT lastval(), 2, dish_id, 1, 1, price FROM dish WHERE en_name = 'Fish w/ Pickled Mustard Greens';
 INSERT INTO order_line_option (ord_id, line_num, opt_id, quantity, price)
-SELECT currval('order_ord_id_seq'), 2, opt_id, 1, price FROM dish_option WHERE en_name = 'Less Spicy';
+SELECT lastval(), 2, opt_id, 1, price FROM dish_option WHERE en_name = 'Less Spicy';
 INSERT INTO order_line_option (ord_id, line_num, opt_id, quantity, price)
-SELECT currval('order_ord_id_seq'), 2, opt_id, 1, price FROM dish_option WHERE en_name = 'Add rice';
+SELECT lastval(), 2, opt_id, 1, price FROM dish_option WHERE en_name = 'Add rice';
 
--- 6.3 ABDU & DARYN'S 3-WAY SPLIT (Ordered at 7:15 PM, Paid ~40 mins later with 25s deviations)
+-- 6.3 ABDU & DARYN'S 3-WAY SPLIT
 INSERT INTO "order" (cus_id, type, ord_split, table_num, ord_time) 
 SELECT cus_id, 'DINE_IN', 3, 10, CURRENT_DATE + TIME '19:15:00' FROM customer WHERE fname = 'Abdu';
 
--- Split 1 (Daryn): 19:55:00
+-- Split 1 (Daryn)
 INSERT INTO invoice (ord_id, split_id, pay_type, pay_info, paid, create_time, paid_time) VALUES 
-(currval('order_ord_id_seq'), '1', 'DEBIT', 'DARYN-DEBIT-9999', true, CURRENT_DATE + TIME '19:15:00', CURRENT_DATE + TIME '19:55:00');
--- Split 2 (Stella): 19:55:25
+(lastval(), 1, 'DEBIT', 'DARYN-DEBIT-9999', true, CURRENT_DATE + TIME '19:15:00', CURRENT_DATE + TIME '19:55:00');
+-- Split 2 (Stella)
 INSERT INTO invoice (ord_id, split_id, pay_type, pay_info, paid, create_time, paid_time) VALUES 
-(currval('order_ord_id_seq'), '2', 'PAYPAL', 'icetechstudios123@gmail.com', true, CURRENT_DATE + TIME '19:15:00', CURRENT_DATE + TIME '19:55:25');
--- Split 3 (Abdu): 19:55:50
+(lastval(), 2, 'PAYPAL', 'icetechstudios123@gmail.com', true, CURRENT_DATE + TIME '19:15:00', CURRENT_DATE + TIME '19:55:25');
+-- Split 3 (Abdu)
 INSERT INTO invoice (ord_id, split_id, pay_type, pay_info, paid, create_time, paid_time) VALUES 
-(currval('order_ord_id_seq'), '3', 'CASH', 'CASH', true, CURRENT_DATE + TIME '19:15:00', CURRENT_DATE + TIME '19:55:50');
+(lastval(), 3, 'CASH', 'CASH', true, CURRENT_DATE + TIME '19:15:00', CURRENT_DATE + TIME '19:55:50');
 
 INSERT INTO order_line_item (ord_id, line_num, dish_id, split_id, quantity, price)
-SELECT currval('order_ord_id_seq'), 1, dish_id, '1', 1, price FROM dish WHERE en_name = 'Fish w/ Pickled Mustard Greens';
+SELECT lastval(), 1, dish_id, 1, 1, price FROM dish WHERE en_name = 'Fish w/ Pickled Mustard Greens';
 INSERT INTO order_line_option (ord_id, line_num, opt_id, quantity, price)
-SELECT currval('order_ord_id_seq'), 1, opt_id, 1, price FROM dish_option WHERE en_name = 'Less Spicy';
+SELECT lastval(), 1, opt_id, 1, price FROM dish_option WHERE en_name = 'Less Spicy';
 INSERT INTO order_line_option (ord_id, line_num, opt_id, quantity, price)
-SELECT currval('order_ord_id_seq'), 1, opt_id, 1, price FROM dish_option WHERE en_name = 'More meat / protein';
+SELECT lastval(), 1, opt_id, 1, price FROM dish_option WHERE en_name = 'More meat / protein';
 INSERT INTO order_line_option (ord_id, line_num, opt_id, quantity, price)
-SELECT currval('order_ord_id_seq'), 1, opt_id, 1, price FROM dish_option WHERE en_name = 'Add rice';
+SELECT lastval(), 1, opt_id, 1, price FROM dish_option WHERE en_name = 'Add rice';
 
 INSERT INTO order_line_item (ord_id, line_num, dish_id, split_id, quantity, price)
-SELECT currval('order_ord_id_seq'), 2, dish_id, '2', 1, price FROM dish WHERE en_name = 'Stir-fried Yam & Wood Ear';
+SELECT lastval(), 2, dish_id, 2, 1, price FROM dish WHERE en_name = 'Stir-fried Yam & Wood Ear';
 INSERT INTO order_line_option (ord_id, line_num, opt_id, quantity, price)
-SELECT currval('order_ord_id_seq'), 2, opt_id, 1, price FROM dish_option WHERE en_name = 'Add rice';
+SELECT lastval(), 2, opt_id, 1, price FROM dish_option WHERE en_name = 'Add rice';
 
 INSERT INTO order_line_item (ord_id, line_num, dish_id, split_id, quantity, price)
-SELECT currval('order_ord_id_seq'), 3, dish_id, '2', 1, price FROM dish WHERE en_name = 'Smashed Cucumber Salad';
+SELECT lastval(), 3, dish_id, 2, 1, price FROM dish WHERE en_name = 'Smashed Cucumber Salad';
 
 INSERT INTO order_line_item (ord_id, line_num, dish_id, split_id, quantity, price)
-SELECT currval('order_ord_id_seq'), 4, dish_id, '3', 1, price FROM dish WHERE en_name = 'Dry Pot Cauliflower';
+SELECT lastval(), 4, dish_id, 3, 1, price FROM dish WHERE en_name = 'Dry Pot Cauliflower';
 INSERT INTO order_line_option (ord_id, line_num, opt_id, quantity, price)
-SELECT currval('order_ord_id_seq'), 4, opt_id, 1, price FROM dish_option WHERE en_name = 'More Spicy';
+SELECT lastval(), 4, opt_id, 1, price FROM dish_option WHERE en_name = 'More Spicy';
 INSERT INTO order_line_option (ord_id, line_num, opt_id, quantity, price)
-SELECT currval('order_ord_id_seq'), 4, opt_id, 1, price FROM dish_option WHERE en_name = 'Add rice';
+SELECT lastval(), 4, opt_id, 1, price FROM dish_option WHERE en_name = 'Add rice';
 
--- 6.4 BASIL II (Ordered at 8:45 PM, Paid 35 mins later)
+-- 6.4 BASIL II
 INSERT INTO "order" (cus_id, type, ord_split, table_num, ord_time) 
 SELECT cus_id, 'TAKEOUT', 1, NULL, CURRENT_DATE + TIME '20:45:00' FROM customer WHERE fname = 'Basil II';
 
 INSERT INTO invoice (ord_id, split_id, pay_type, pay_info, paid, create_time, paid_time)
-VALUES (currval('order_ord_id_seq'), '1', 'CASH', 'Imperial Byzantine Armor Left at Counter', true, CURRENT_DATE + TIME '20:45:00', CURRENT_DATE + TIME '21:20:00');
+VALUES (lastval(), 1, 'CASH', 'Imperial Byzantine Armor Left at Counter', true, CURRENT_DATE + TIME '20:45:00', CURRENT_DATE + TIME '21:20:00');
 
 INSERT INTO order_line_item (ord_id, line_num, dish_id, split_id, quantity, price, notes)
-SELECT currval('order_ord_id_seq'), 1, dish_id, '1', 200, price, 
+SELECT lastval(), 1, dish_id, 1, 200, price, 
 'To sustain morale during the logistics snags of the Siege of Tripoli. Customer paid in Regalian Lamellar Armor.'
 FROM dish WHERE en_name = 'Roasted Aorta Skewers';

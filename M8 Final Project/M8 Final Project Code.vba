@@ -1,3 +1,11 @@
+' ===============================================================
+' Program name: Final Project.vba
+' Author: Stella Song
+' Date last updated: 5/10/2026
+' Purpose: The most diabolical way to complete the project.
+' Tell Me: How many "67"s are in this code?
+' ===============================================================
+
 Public conn As ADODB.Connection
 #If VBA7 Then
     Public Declare PtrSafe Function MessageBoxW Lib "user32" (ByVal hwnd As LongPtr, ByVal lpText As LongPtr, ByVal lpCaption As LongPtr, ByVal wType As Long) As Long
@@ -8,7 +16,6 @@ Public conn As ADODB.Connection
 ' ==========================================
 ' 1. INITIALIZATION & CONNECTION
 ' ==========================================
-' 67!
 Sub ConnectDB()
     Dim connStr As String
     Set conn = New ADODB.Connection

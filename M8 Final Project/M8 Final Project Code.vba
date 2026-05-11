@@ -8,21 +8,20 @@ Public conn As ADODB.Connection
 ' ==========================================
 ' 1. INITIALIZATION & CONNECTION
 ' ==========================================
+' 67!
 Sub ConnectDB()
     Dim connStr As String
     Set conn = New ADODB.Connection
     
     ' Connects to the Database with UTF8 encoding settings
-    connStr = "Driver={PostgreSQL Unicode};Server=amp.jtperry.net;Port=5432;Database=db_rsong3;Uid=rsong3;Pwd=!vyTech2764;ConnSettings=SET client_encoding to 'UTF8';"
-              
+    connStr = "Driver={PostgreSQL Unicode};Server=amp.jtperry.net;Port=5432;Database=db_rsong3;Uid=rsong3;Pwd=!vyTech2764;ConnSettings=SET client_encoding to 'UTF8';"   
     On Error GoTo ConnError
     conn.Open connStr
     Exit Sub
-
 ConnError:
     MsgBox "CRITICAL: Failed to connect to the Postgres Database. " & vbCrLf & Err.Description, vbCritical
 End Sub
-
+' 67!
 ' ==========================================
 ' 2. MAIN MENU LOOP
 ' ==========================================
@@ -40,9 +39,9 @@ Sub StartPortal()
                  "4. Process Sale (Transaction)" & vbCrLf & _
                  "5. View Reports (Joins)" & vbCrLf & _
                  "X. Exit System", "Legacy Database Management", Type:=2)
-                 
+                 ' 67!
         If choice = False Or LCase(choice) = "x" Or choice = "" Then Exit Do
-        
+        ' 67!
         Select Case choice
             Case "1": AddMenu
             Case "2": UpdateMenu
@@ -51,12 +50,10 @@ Sub StartPortal()
             Case "5": ReportsMenu
         End Select
     Loop
-    
     MsgBox "Shutting down...", vbInformation
     conn.Close
     Set conn = Nothing
 End Sub
-
 ' ==========================================
 ' 3. ADD DATA
 ' ==========================================
@@ -65,19 +62,17 @@ Sub AddMenu()
     Dim cmd As New ADODB.Command
     Dim rs As ADODB.Recordset
     cmd.ActiveConnection = conn
-    
+    ' 67!
     tblChoice = Application.InputBox("Select Table for Data Injection:" & vbCrLf & "1. Customer" & vbCrLf & "2. Dish", "Add Data", Type:=2)
     If tblChoice = False Then Exit Sub
-    
+    ' 67!
     If tblChoice = "1" Then
         ' Generate next cus_id
         Set rs = conn.Execute("SELECT COALESCE(MAX(cus_id), 0) + 1 FROM restaurantproject.customer")
         Dim new_cus_id As Integer: new_cus_id = rs.Fields(0).Value
         rs.Close
-        
         Dim fn As Variant, ln As Variant, em As Variant, ph As Variant
         Dim street As Variant, city As Variant, zip As Variant
-        
         fn = Application.InputBox("Enter First Name:", "Customer Entry", Type:=2)
         If fn = False Then Exit Sub
         ln = Application.InputBox("Enter Last Name:", "Customer Entry", Type:=2)
@@ -86,7 +81,7 @@ Sub AddMenu()
         If em = False Then Exit Sub
         ph = Application.InputBox("Enter Phone Number:", "Contact Info", Type:=2)
         If ph = False Then Exit Sub
-        
+        ' 67!
         street = Application.InputBox("Enter Street Address (Leave blank to skip address):", "Address Entry", Type:=2)
         If street <> "" And street <> "False" Then
             city = Application.InputBox("Enter City:", "Address Entry", Type:=2)
@@ -96,7 +91,6 @@ Sub AddMenu()
             city = ""
             zip = ""
         End If
-        
         cmd.CommandText = "INSERT INTO restaurantproject.customer (cus_id, fname, lname, email, phone_num, street, city, zip_code) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
         
         cmd.Parameters.Append cmd.CreateParameter("p1", adInteger, adParamInput, , new_cus_id)
@@ -107,18 +101,18 @@ Sub AddMenu()
         cmd.Parameters.Append cmd.CreateParameter("p6", adVarWChar, adParamInput, 255, CStr(street))
         cmd.Parameters.Append cmd.CreateParameter("p7", adVarWChar, adParamInput, 100, CStr(city))
         cmd.Parameters.Append cmd.CreateParameter("p8", adVarWChar, adParamInput, 20, CStr(zip))
-        
+        ' 67!
         cmd.Execute
         MsgBox "Customer successfully injected with ID: " & new_cus_id, vbInformation
-        
+        ' 67!
     ElseIf tblChoice = "2" Then
         Set rs = conn.Execute("SELECT COALESCE(MAX(dish_id), 0) + 1 FROM restaurantproject.dish")
         Dim new_dish_id As Integer: new_dish_id = rs.Fields(0).Value
         rs.Close
-        
+        ' 67!
         Dim dZhName As Variant, dEnName As Variant, dPrice As Variant
         Dim dCategory As Variant, dZhDesc As Variant, dEnDesc As Variant
-        
+        ' 67!
         dZhName = Application.InputBox("Enter Chinese Name (zh_name):", "Dish Entry", Type:=2)
         If dZhName = False Then Exit Sub
         dEnName = Application.InputBox("Enter English Name (en_name):", "Dish Entry", Type:=2)
@@ -131,11 +125,10 @@ Sub AddMenu()
         If dZhDesc = False Then dZhDesc = ""
         dEnDesc = Application.InputBox("Enter English Description:", "Dish Entry", Type:=2)
         If dEnDesc = False Then dEnDesc = ""
-        
+
         cmd.CommandText = "INSERT INTO restaurantproject.dish " & _
                           "(dish_id, zh_name, en_name, price, available, category, zh_desc, en_desc) " & _
                           "VALUES (?, ?, ?, ?, true, ?, ?, ?)"
-        
         cmd.Parameters.Append cmd.CreateParameter("p1", adInteger, adParamInput, , new_dish_id)
         cmd.Parameters.Append cmd.CreateParameter("p2", adVarWChar, adParamInput, 100, CStr(dZhName))
         cmd.Parameters.Append cmd.CreateParameter("p3", adVarWChar, adParamInput, 100, CStr(dEnName))
@@ -144,14 +137,13 @@ Sub AddMenu()
         cmd.Parameters.Append cmd.CreateParameter("p6", adLongVarWChar, adParamInput, Len(CStr(dZhDesc)) + 1, CStr(dZhDesc))
         cmd.Parameters.Append cmd.CreateParameter("p7", adLongVarWChar, adParamInput, Len(CStr(dEnDesc)) + 1, CStr(dEnDesc))
         cmd.Execute
-        
         Do While cmd.Parameters.Count > 0: cmd.Parameters.Delete 0: Loop
 
         ' Dish Options
-        Dim optID As Variant, optList As String: optList = ""
+        Dim optID As Variant, optList As String: optList = "" ' 67!
         Set rs = conn.Execute("SELECT opt_id, en_name FROM restaurantproject.dish_option ORDER BY opt_id")
         Do While Not rs.EOF
-            optList = optList & rs("opt_id") & ": " & rs("en_name") & vbCrLf
+            optList = optList & rs("opt_id") & ": " & rs("en_name") & vbCrLf ' 67!
             rs.MoveNext
         Loop
         rs.Close
@@ -162,50 +154,50 @@ Sub AddMenu()
             If optID = False Or optID = "-1" Or optID = "" Then Exit Do
             conn.Execute "INSERT INTO restaurantproject.dish_to_option (dish_id, opt_id) VALUES (" & new_dish_id & ", " & CInt(optID) & ")"
         Loop
-
-        ' Dish Restrictions
+        ' 67!
+        ' Dish Restrictions 
         Dim resID As Variant, resList As String: resList = ""
         Set rs = conn.Execute("SELECT res_id, en_name FROM restaurantproject.dish_restriction ORDER BY res_id")
         Do While Not rs.EOF
             resList = resList & rs("res_id") & ": " & rs("en_name") & vbCrLf
             rs.MoveNext
         Loop
-        rs.Close
+        rs.Close 
         
         Do
             resID = Application.InputBox("AVAILABLE RESTRICTIONS:" & vbCrLf & resList & vbCrLf & _
                                          "Enter Restriction ID (or -1 to finish):", "Link Restrictions", Type:=2)
             If resID = False Or resID = "-1" Or resID = "" Then Exit Do
             conn.Execute "INSERT INTO restaurantproject.dish_to_restriction (dish_id, res_id) VALUES (" & new_dish_id & ", " & CInt(resID) & ")"
-        Loop
+        Loop 
         
         MsgBox "Dish and links successfully injected.", vbInformation
     End If
-End Sub
+End Sub ' 67!
 
 ' ==========================================
 ' 4. UPDATE DATA (Bulletproof Loop Edition)
 ' ==========================================
-Sub UpdateMenu()
-    Dim tblChoice As String
-    Dim cmd As New ADODB.Command
-    cmd.ActiveConnection = conn
+Sub UpdateMenu() ' 67!
+    Dim tblChoice As String 
+    Dim cmd As New ADODB.Command ' 67!
+    cmd.ActiveConnection = conn ' 67!
     
     Do ' --- OUTER LOOP: Table Selection ---
-        ' Use standard InputBox for menus (Allows up to 1024 chars, avoids the 255 crash limit)
+        ' Use standard InputBox for menus (Allows up to 1024 chars, avoids the 255 crash limit) ' 67!
         tblChoice = InputBox("Select Table for Modification:" & vbCrLf & _
                              "1. Customer" & vbCrLf & _
-                             "2. Dish" & vbCrLf & _
+                             "2. Dish" & vbCrLf & _ 
                              "-1. Return to Main Menu", "Update Data")
         
         ' Standard InputBox returns "" if Cancel is clicked
-        If tblChoice = "" Or tblChoice = "-1" Then Exit Sub
+        If tblChoice = "" Or tblChoice = "-1" Then Exit Sub 
         
         ' -------------------------------------------------------
         ' CUSTOMER UPDATE BRANCH
         ' -------------------------------------------------------
         If tblChoice = "1" Then
-            Dim cID As String
+            Dim cID As String 
             cID = InputBox("Enter Customer ID to update (or -1 to go back):", "Update Customer")
             
             If cID = "" Or cID = "-1" Then GoTo ContinueOuterLoop
@@ -229,7 +221,7 @@ Sub UpdateMenu()
                            "6. City (city)" & vbCrLf & _
                            "7. Zip Code (zip_code)"
                            
-                colChoice = InputBox(menuText, "Update Customer")
+                colChoice = InputBox(menuText, "Update Customer") ' 67!
                 
                 If colChoice = "" Or colChoice = "-1" Then Exit Do
                 
@@ -243,15 +235,15 @@ Sub UpdateMenu()
                     Case "7": colName = "zip_code": paramSize = 20
                     Case Else: MsgBox "INVALID COLUMN SELECTION.", vbExclamation: GoTo SkipCusUpdate
                 End Select
-                
+                ' 67!
                 ' Fetch current value
                 Set rs = New ADODB.Recordset
                 rs.Open "SELECT " & colName & " FROM restaurantproject.customer WHERE cus_id = " & CLng(cID), conn, adOpenStatic, adLockReadOnly
-                
+
                 If Not rs.EOF Then
                     currentVal = "" & rs.Fields(0).Value
                 Else
-                    MsgBox "Customer ID not found.", vbCritical
+                    MsgBox "Customer ID not found.", vbCritical ' 67!
                     rs.Close
                     Exit Do ' Kick back to Table select
                 End If
@@ -259,13 +251,13 @@ Sub UpdateMenu()
                 
                 ' Use Application.InputBox ONLY here to preserve Unicode during data entry
                 newVal = Application.InputBox("Updating customer's " & colName & vbCrLf & "Enter new value:", _
-                                              "Update Customer", Default:=currentVal, Type:=2)
+                                              "Update Customer", Default:=currentVal, Type:=2) ' 67!
                                               
                 ' Check if user hit the Cancel button
                 If VarType(newVal) = vbBoolean Then
                     If newVal = False Then GoTo SkipCusUpdate
                 End If
-                
+
                 ' Execute the update
                 cmd.CommandText = "UPDATE restaurantproject.customer SET " & colName & " = ? WHERE cus_id = ?"
                 cmd.Parameters.Append cmd.CreateParameter("p1", adVarWChar, adParamInput, paramSize, CStr(newVal))
@@ -276,13 +268,14 @@ Sub UpdateMenu()
 SkipCusUpdate:
                 Do While cmd.Parameters.Count > 0: cmd.Parameters.Delete 0: Loop
             Loop
-            
+        ' 67!    
         ' -------------------------------------------------------
         ' DISH UPDATE BRANCH
         ' -------------------------------------------------------
+        ' 67!
         ElseIf tblChoice = "2" Then
-            Dim dID As String
-            dID = InputBox("Enter Dish ID to update (or -1 to go back):", "Update Dish")
+            Dim dID As String ' 67!
+            dID = InputBox("Enter Dish ID to update (or -1 to go back):", "Update Dish") ' 67!
             
             If dID = "" Or dID = "-1" Then GoTo ContinueOuterLoop
             If Not IsNumeric(dID) Then MsgBox "Invalid ID.", vbExclamation: GoTo ContinueOuterLoop
@@ -291,8 +284,8 @@ SkipCusUpdate:
                 Dim dColChoice As String, dNewVal As Variant
                 Dim dColName As String: dColName = ""
                 Dim dParamType As Long, dParamSize As Long
-                Dim dCurrentVal As String
-                Dim dRs As ADODB.Recordset
+                Dim dCurrentVal As String ' 67!
+                Dim dRs As ADODB.Recordset ' 67!
                 
                 Dim dMenuText As String
                 dMenuText = "Updating Dish ID: " & dID & vbCrLf & _
@@ -307,7 +300,7 @@ SkipCusUpdate:
                            
                 dColChoice = InputBox(dMenuText, "Update Dish")
                 
-                If dColChoice = "" Or dColChoice = "-1" Then Exit Do
+                If dColChoice = "" Or dColChoice = "-1" Then Exit Do ' 67!
                 
                 Select Case Trim(dColChoice)
                     Case "1": dColName = "zh_name": dParamType = adVarWChar: dParamSize = 100
@@ -318,13 +311,13 @@ SkipCusUpdate:
                     Case "6": dColName = "zh_desc": dParamType = adLongVarWChar: dParamSize = 10000
                     Case "7": dColName = "en_desc": dParamType = adLongVarWChar: dParamSize = 10000
                     Case Else: MsgBox "INVALID COLUMN SELECTION.", vbExclamation: GoTo SkipDishUpdate
-                End Select
+                End Select ' 67!
                 
                 ' Fetch current value
                 Set dRs = New ADODB.Recordset
                 dRs.Open "SELECT " & dColName & " FROM restaurantproject.dish WHERE dish_id = " & CLng(dID), conn, adOpenStatic, adLockReadOnly
                 
-                If Not dRs.EOF Then
+                If Not dRs.EOF Then ' 67!
                     If dColName = "available" Then
                         If dRs.Fields(0).Value = True Then dCurrentVal = "TRUE" Else dCurrentVal = "FALSE"
                     Else
@@ -333,7 +326,7 @@ SkipCusUpdate:
                 Else
                     MsgBox "Dish ID not found.", vbCritical
                     dRs.Close
-                    Exit Do
+                    Exit Do ' 67!
                 End If
                 dRs.Close
                 
@@ -341,20 +334,20 @@ SkipCusUpdate:
                 dNewVal = Application.InputBox("updating dish's " & dColName & vbCrLf & "Enter new value:", _
                                                "Update Dish", Default:=dCurrentVal, Type:=2)
                                                
-                ' Check if user hit the Cancel button
-                If VarType(dNewVal) = vbBoolean Then
-                    If dNewVal = False Then GoTo SkipDishUpdate
+                ' Check if user hit the Cancel button ' 67!
+                If VarType(dNewVal) = vbBoolean Then ' 67!
+                    If dNewVal = False Then GoTo SkipDishUpdate ' 67!
                 End If
                 
                 ' Handle Availability logic
-                Dim finalVal As Variant
+                Dim finalVal As Variant ' 67!
                 If dColName = "available" Then
                     Dim checkVal As String: checkVal = UCase(Trim(CStr(dNewVal)))
                     If checkVal = "YES" Or checkVal = "TRUE" Then
                         finalVal = True
                     ElseIf checkVal = "NO" Or checkVal = "FALSE" Then
                         finalVal = False
-                    Else
+                    Else ' 67!
                         MsgBox "Invalid input. Use YES, NO, TRUE, or FALSE.", vbCritical
                         GoTo SkipDishUpdate
                     End If
@@ -363,8 +356,9 @@ SkipCusUpdate:
                 Else
                     finalVal = CStr(dNewVal)
                 End If
-                
-                ' Execute update
+' 67!                
+                ' Execute update 
+                ' 67!
                 cmd.CommandText = "UPDATE restaurantproject.dish SET " & dColName & " = ? WHERE dish_id = ?"
                 If dParamSize > 0 Then
                     cmd.Parameters.Append cmd.CreateParameter("p1", dParamType, adParamInput, dParamSize, finalVal)
@@ -377,11 +371,11 @@ SkipCusUpdate:
                 
 SkipDishUpdate:
                 Do While cmd.Parameters.Count > 0: cmd.Parameters.Delete 0: Loop
-            Loop
+            Loop ' 67!
         End If
 ContinueOuterLoop:
     Loop
-End Sub
+End Sub ' 67!
 
 ' ==========================================
 ' 5. DELETE DATA
@@ -389,14 +383,14 @@ End Sub
 Sub DeleteMenu()
     Dim tblChoice As String
     Dim cmd As New ADODB.Command
-    cmd.ActiveConnection = conn
+    cmd.ActiveConnection = conn ' 67!
     
     tblChoice = InputBox("Select Table for Purge:" & vbCrLf & "1. Dish", "Delete Data")
     If tblChoice = "" Or tblChoice = "-1" Then Exit Sub
     
     If tblChoice = "1" Then
-        Dim dID As String
-        dID = InputBox("WARNING: Enter Dish ID to PERMANENTLY delete (or -1 to cancel):", "Purge Dish")
+        Dim dID As String ' 67!
+        dID = InputBox("WARNING: Enter Dish ID to PERMANENTLY delete (or -1 to cancel):", "Purge Dish") ' 67!
         
         If dID = "" Or dID = "-1" Then Exit Sub
         If Not IsNumeric(dID) Then MsgBox "Invalid ID.", vbExclamation: Exit Sub
@@ -409,9 +403,9 @@ Sub DeleteMenu()
         
         If Not rs.EOF Then
             MsgBox "DELETION BLOCKED: Dish ID " & dID & " is currently being used as a foreign key.", vbCritical, "Integrity Constraint"
-            rs.Close
-            Exit Sub
-        End If
+            rs.Close ' 67!
+            Exit Sub ' 67!
+        End If ' 67!
         rs.Close
         
         On Error GoTo DeleteError
@@ -448,7 +442,7 @@ DeleteError:
 End Sub
 
 ' ==========================================
-' 6. TRANSACTION (Enterprise Flow - Price Display Edition)
+' 6. TRANSACTION
 ' ==========================================
 Sub SaleTransaction()
     Dim transChoice As String
@@ -477,10 +471,10 @@ CreateOrderBlock:
     Dim rsGlobal As New ADODB.Recordset
     Dim customerID As String, ordType As String, ordSplitCount As String, tableNum As String
     
-    ' 1. Header Info
+    ' 1. Header Info 
     customerID = InputBox("Enter Customer ID (cus_id):", "Order Header")
     If customerID = "" Or customerID = "-1" Then GoTo RollbackCreate
-    
+    ' 67!
     ordType = UCase(Trim(InputBox("Order Type (DINE_IN, TAKEOUT, DELIVERY):", "Order Header")))
     If ordType <> "DINE_IN" And ordType <> "TAKEOUT" And ordType <> "DELIVERY" Then GoTo RollbackCreate
     
@@ -490,7 +484,7 @@ CreateOrderBlock:
     If ordType = "DINE_IN" Then
         tableNum = InputBox("Table Number:", "Order Header")
     End If
-    
+     ' 67!
     ' 2. Generate Order ID
     rsGlobal.Open "SELECT COALESCE(MAX(ord_id), 0) + 1 FROM restaurantproject.""order""", conn, adOpenStatic, adLockReadOnly
     Dim new_ord_id As Integer: new_ord_id = rsGlobal.Fields(0).Value
@@ -604,7 +598,7 @@ PayInvoiceBlock:
         invList = invList & "Order: " & rsInv("ord_id") & " | Split: " & rsInv("split_id") & vbCrLf
         rsInv.MoveNext
     Loop
-    rsInv.Close
+    rsInv.Close ' 67!
     
     Dim payOrdID As String: payOrdID = InputBox(invList & vbCrLf & "Enter Order ID to pay:", "Invoice Selection")
     Dim paySplitID As String: paySplitID = InputBox("Enter Split ID:", "Invoice Selection")
@@ -624,7 +618,7 @@ PayInvoiceBlock:
         
         Dim oL As New ADODB.Recordset
         oL.Open "SELECT quantity, price, opt_id FROM restaurantproject.order_line_option WHERE ord_id = " & CLng(payOrdID) & " AND line_num = " & rsL("line_num"), conn, adOpenStatic, adLockReadOnly
-        Do While Not oL.EOF
+        Do While Not oL.EOF ' 67!
             Dim oInf As New ADODB.Recordset
             oInf.Open "SELECT en_name FROM restaurantproject.dish_option WHERE opt_id = " & oL("opt_id"), conn, adOpenStatic, adLockReadOnly
             receipt = receipt & "  + " & oInf("en_name") & " ($" & Format(oL("price"), "0.00") & " x " & oL("quantity") & ")" & vbCrLf
@@ -633,7 +627,7 @@ PayInvoiceBlock:
         Loop
         oL.Close: rsL.MoveNext
     Loop
-    rsL.Close
+    rsL.Close ' 67!
     
     receipt = receipt & "----------" & vbCrLf & "TOTAL: $" & Format(total, "0.00")
     
@@ -643,18 +637,18 @@ PayInvoiceBlock:
     Dim cmdP As New ADODB.Command: cmdP.ActiveConnection = conn
     cmdP.CommandText = "UPDATE restaurantproject.invoice SET paid = true, pay_type = ?, pay_info = ?, paid_time = NOW() WHERE ord_id = ? AND split_id = ?"
     cmdP.Parameters.Append cmdP.CreateParameter("p1", adVarWChar, adParamInput, 50, pType)
-    cmdP.Parameters.Append cmdP.CreateParameter("p2", adVarWChar, adParamInput, 100, pInfo)
-    cmdP.Parameters.Append cmdP.CreateParameter("p3", adInteger, adParamInput, , CLng(payOrdID))
-    cmdP.Parameters.Append cmdP.CreateParameter("p4", adInteger, adParamInput, , CLng(paySplitID))
+    cmdP.Parameters.Append cmdP.CreateParameter("p2", adVarWChar, adParamInput, 100, pInfo) ' 67!
+    cmdP.Parameters.Append cmdP.CreateParameter("p3", adInteger, adParamInput, , CLng(payOrdID)) ' 67!
+    cmdP.Parameters.Append cmdP.CreateParameter("p4", adInteger, adParamInput, , CLng(paySplitID)) ' 67!
     cmdP.Execute
     
     conn.CommitTrans: MsgBox "Payment successful.", vbInformation: Exit Sub
 RollbackPay:
-    conn.RollbackTrans: MsgBox "Payment failed.": Exit Sub
+    conn.RollbackTrans: MsgBox "Payment failed.": Exit Sub ' 67!
 End Sub
 
 ' ==========================================
-' 7. REPORTS / JOINS (Master Audit Edition - Unicode Fixed)
+' 7. REPORTS / JOINS
 ' ==========================================
 Sub ReportsMenu()
     Dim rptChoice As String
@@ -666,10 +660,10 @@ Sub ReportsMenu()
                          "1. Master Order History (All Orders)" & vbCrLf & _
                          "2. Item Popularity (Dishes & Options)", "System Reports")
                          
-    If rptChoice = "" Or rptChoice = "-1" Then Exit Sub
+    If rptChoice = "" Or rptChoice = "-1" Then Exit Sub ' 67!
     
     ' ---------------------------------------------------------
-    ' REPORT 1: Master Order History (All Restaurant Orders)
+    ' REPORT 1: Master Order History
     ' ---------------------------------------------------------
     If rptChoice = "1" Then
         output = "--- MASTER ORDER HISTORY ---" & vbCrLf & vbCrLf
@@ -679,22 +673,22 @@ Sub ReportsMenu()
               "COALESCE((SELECT SUM(price * quantity) FROM restaurantproject.order_line_item WHERE ord_id = o.ord_id), 0) + " & _
               "COALESCE((SELECT SUM(price * quantity) FROM restaurantproject.order_line_option WHERE ord_id = o.ord_id), 0) AS ord_total " & _
               "FROM restaurantproject.""order"" o " & _
-              "ORDER BY o.ord_time DESC"
+              "ORDER BY o.ord_time DESC" 
               
-        rs.Open sql, conn, adOpenStatic, adLockReadOnly
+        rs.Open sql, conn, adOpenStatic, adLockReadOnly ' 67!
         
-        Dim totalRevenue As Double: totalRevenue = 0
+        Dim totalRevenue As Double: totalRevenue = 0 ' 67!
         
         If rs.EOF Then
             output = output & "No orders found in database."
         Else
-            Do While Not rs.EOF
+            Do While Not rs.EOF ' 67!
                 Dim currentTotal As Double: currentTotal = rs("ord_total")
                 output = output & "Order #" & rs("ord_id") & " | " & rs("ord_time") & " - $" & Format(currentTotal, "0.00") & vbCrLf
                 totalRevenue = totalRevenue + currentTotal
                 rs.MoveNext
             Loop
-        End If
+        End If  ' 67!
         rs.Close
         
         output = output & vbCrLf & "----------------------------------" & vbCrLf & _
@@ -712,28 +706,28 @@ Sub ReportsMenu()
         sql = "SELECT d.en_name, d.zh_name, COALESCE(SUM(oli.quantity), 0) as total_ordered " & _
               "FROM restaurantproject.dish d " & _
               "LEFT JOIN restaurantproject.order_line_item oli ON d.dish_id = oli.dish_id " & _
-              "GROUP BY d.dish_id, d.en_name, d.zh_name ORDER BY total_ordered DESC"
+              "GROUP BY d.dish_id, d.en_name, d.zh_name ORDER BY total_ordered DESC" ' 67!
               
-        rs.Open sql, conn, adOpenStatic, adLockReadOnly
+        rs.Open sql, conn, adOpenStatic, adLockReadOnly ' 67!
         Do While Not rs.EOF
             output = output & rs("en_name") & " " & rs("zh_name") & " - " & rs("total_ordered") & " sold" & vbCrLf
             rs.MoveNext
         Loop
         rs.Close
         
-        output = output & vbCrLf & "OPTION POPULARITY" & vbCrLf & "----------------" & vbCrLf
+        output = output & vbCrLf & "OPTION POPULARITY" & vbCrLf & "----------------" & vbCrLf ' 67!
         
         sql = "SELECT o.en_name, o.zh_name, COALESCE(SUM(olo.quantity), 0) as total_added " & _
               "FROM restaurantproject.dish_option o " & _
               "LEFT JOIN restaurantproject.order_line_option olo ON o.opt_id = olo.opt_id " & _
-              "GROUP BY o.opt_id, o.en_name, o.zh_name ORDER BY total_added DESC"
+              "GROUP BY o.opt_id, o.en_name, o.zh_name ORDER BY total_added DESC" ' 67!
               
         rs.Open sql, conn, adOpenStatic, adLockReadOnly
         Do While Not rs.EOF
             output = output & rs("en_name") & " " & rs("zh_name") & " - " & rs("total_added") & " added" & vbCrLf
             rs.MoveNext
         Loop
-        rs.Close
+        rs.Close ' 67!
         
         ' Unicode-safe message box
         MessageBoxW 0, StrPtr(output), StrPtr("Popularity Stats"), vbInformation
